@@ -5,6 +5,12 @@ const ContractRoutes = (apiVersion, servicePath = 'contracts') => {
         },
         get CREATE_CONTRACT() {
             return `${apiVersion}/${servicePath}/create`
+        },
+        get STORE_DEPLOYMENT() {
+            return `${apiVersion}/${servicePath}/deployment`
+        },
+        get GET_BY_TYPE() {
+            return `${apiVersion}/${servicePath}`
         }
     }
 }

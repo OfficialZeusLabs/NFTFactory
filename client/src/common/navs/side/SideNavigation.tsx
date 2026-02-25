@@ -20,9 +20,9 @@ const SideBar: React.FC<SideBarProps> = ({ menuNav }) => {
       to: "/launchpad",
     },
     {
-      name: "Analytics",
+      name: "Business Dashboard",
       icon: "/images/trending-up.svg",
-      to: "/analytics",
+      to: "/dashboard",
     },
     {
       name: "Notifications",

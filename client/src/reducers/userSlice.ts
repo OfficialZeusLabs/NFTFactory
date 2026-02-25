@@ -5,6 +5,8 @@ import { RootState } from "../store";
 const initialState: LaunchPadInterface = {
   project: {
     title: null,
+    description: null,
+    category: null,
   },
   artworks: {
     price: null,

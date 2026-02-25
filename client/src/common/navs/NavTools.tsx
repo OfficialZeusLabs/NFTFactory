@@ -3,7 +3,8 @@ import Image from "next/image";
 import Button from "../Button";
 import { useState, useEffect } from "react";
 import { useWeb3Modal } from "@web3modal/react";
-import { getAccount } from "@wagmi/core";
+import { getAccount, connect } from "@wagmi/core";
+import { InjectedConnector } from "wagmi/connectors/injected";
 import { orbitron } from "@/fonts/fonts";
 import { poppins } from "@/fonts/fonts";
 import { useDispatch } from "react-redux";
@@ -43,6 +44,49 @@ const NavTools: React.FC<NavToolsProps> = (props) => {
     }
   }, [isConnected, address]);
 
+  // Function to detect and connect to Coinbase/Base Wallet
+  const connectToBaseWallet = async () => {
+    // Check if Coinbase Wallet (Base Wallet) is installed
+    const ethereum = (window as any).ethereum;
+    
+    // Check for Coinbase Wallet
+    const isCoinbaseWallet = ethereum?.isCoinbaseWallet || 
+      ethereum?.providers?.some((p: any) => p.isCoinbaseWallet);
+    
+    // Check for any injected wallet (MetaMask, Coinbase, etc.)
+    const hasInjectedWallet = typeof ethereum !== 'undefined';
+    
+    if (hasInjectedWallet) {
+      try {
+        // Create a new injected connector that will use the browser wallet
+        const injectedConnector = new InjectedConnector({
+          chains: [{
+            id: 84532,
+            name: 'Base Sepolia',
+            network: 'base-sepolia',
+            nativeCurrency: { decimals: 18, name: 'Base Sepolia Ether', symbol: 'ETH' },
+            rpcUrls: {
+              default: { http: ['https://sepolia.base.org'] },
+              public: { http: ['https://sepolia.base.org'] },
+            },
+          }],
+          options: {
+            name: isCoinbaseWallet ? 'Coinbase Wallet' : 'Injected Wallet',
+            shimDisconnect: true,
+          },
+        });
+        
+        await connect({ connector: injectedConnector });
+      } catch (error) {
+        console.log("Direct wallet connection failed, opening modal", error);
+        await open();
+      }
+    } else {
+      // No injected wallet found, open the modal
+      await open();
+    }
+  };
+
   return (
     <>
       {isMenu ? (
@@ -54,18 +98,20 @@ const NavTools: React.FC<NavToolsProps> = (props) => {
             <button
               className="bg-gradient-linear rounded-md px-3 py-2 text-sm"
               onClick={async () => {
-                await open();
+                await connectToBaseWallet();
               }}
             >
               {buttonText}
             </button>
-            <Image
-              height={25}
-              width={25}
-              src={"/profile.svg"}
-              alt={"profile"}
-              style={{ cursor: "pointer" }}
-            />
+            <a href="/profile">
+              <Image
+                height={25}
+                width={25}
+                src={"/profile.svg"}
+                alt={"profile"}
+                style={{ cursor: "pointer" }}
+              />
+            </a>
           </div>
         </div>
       ) : (
@@ -73,18 +119,20 @@ const NavTools: React.FC<NavToolsProps> = (props) => {
           <button
             className="bg-gradient-linear rounded-md px-3 py-2 text-md"
             onClick={async () => {
-              await open();
+              await connectToBaseWallet();
             }}
           >
             {buttonText}
           </button>
-          <Image
-            height={25}
-            width={25}
-            src={"/profile.svg"}
-            alt={"profile"}
-            style={{ cursor: "pointer" }}
-          />
+          <a href="/profile">
+            <Image
+              height={25}
+              width={25}
+              src={"/profile.svg"}
+              alt={"profile"}
+              style={{ cursor: "pointer" }}
+            />
+          </a>
         </>
       )}
     </>

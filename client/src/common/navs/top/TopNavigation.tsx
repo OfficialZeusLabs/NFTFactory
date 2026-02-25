@@ -26,6 +26,11 @@ const TopNavigation = () => {
       link: "/collections",
       id: 3,
     },
+    {
+      name: "Subscriptions",
+      link: "/subscription",
+      id: 4,
+    },
   ];
 
   const menuNav = () => {

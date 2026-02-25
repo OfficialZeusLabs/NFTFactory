@@ -7,17 +7,21 @@ import TopNavigation from "@/common/navs/top/TopNavigation";
 import { poppins } from "@/fonts/fonts";
 import APIService from "@/http/api_service";
 import { getWalletAddress, getWalletConnected } from "@/reducers/userSlice";
-import { readFactoryContract, readSimpleCollectibleContract } from "@/utils";
+import { readFactoryContract, readSimpleCollectibleContract, getUserSubscription, SubscriptionTier, getAllUserNFTs } from "@/utils";
 import axios from "axios";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { AiOutlineMenu } from "react-icons/ai";
 import { useSelector } from "react-redux";
-import { useAccount } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import Link from "next/link";
 
 const Profile: React.FC = () => {
   const { address, isConnected } = useAccount();
+  const { data: balance } = useBalance({
+    address: address,
+    chainId: 84532, // Base Sepolia
+  });
   const walletAddress = useSelector(getWalletAddress);
   const connected = useSelector(getWalletConnected);
   const [Open, setOpen] = useState(true);
@@ -25,6 +29,10 @@ const Profile: React.FC = () => {
   const [mintFee, setMintFee] = useState<number[]>([]);
   const [images, setImages] = useState<string[]>([]);
   const [profileData, setProfile] = useState<any>({});
+  const [subscriptionId, setSubscriptionId] = useState<bigint | null>(null);
+  const [subscriptionTier, setSubscriptionTier] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const [userNFTs, setUserNFTs] = useState<any[]>([]);
 
   const menuNav = () => {
     setOpen(!Open);
@@ -42,32 +50,48 @@ const Profile: React.FC = () => {
           const responseData = response["data"];
           setProfile({...responseData});
         })
+        
+        // Check subscription
+        getUserSubscription(walletAddress as `0x${string}`).then((subId) => {
+          if (subId) {
+            setSubscriptionId(subId);
+            // Determine tier name based on subscription ID or fetch from contract
+            setSubscriptionTier("Active");
+          }
+        });
+        
+        // Load user's NFTs
+        getAllUserNFTs(walletAddress as `0x${string}`).then((nfts) => {
+          setUserNFTs(nfts);
+          setLoading(false);
+        });
       }
     }
-  }, [connected]);
+  }, [connected, walletAddress]);
   
 
   useEffect(() => {
-    readFactoryContract("getMarketPlaces").then((res) => {
-      console.log(res);
-      res.forEach((contractAddress: any) => {
+    readFactoryContract("getMarketPlaces").then((result: unknown) => {
+      console.log(result);
+      const addresses = result as any[];
+      addresses.forEach((contractAddress: any) => {
         readSimpleCollectibleContract(contractAddress, "getData", [
           address,
-        ]).then((data) => {
+        ]).then((dataResult: unknown) => {
+          const items = dataResult as any[];
           readSimpleCollectibleContract(contractAddress, "name").then(
             (name) => {
               name && setName(String(name));
-              data &&
-                typeof data === "object" &&
-                data.forEach((response: any, i) => {
+              items && Array.isArray(items) &&
+                items.forEach((response: any, _i: number) => {
                   console.log(response, response.uri);
-                  setMintFee((existingCollections) => [
+                  setMintFee((existingCollections: number[]) => [
                     ...existingCollections,
                     parseFloat(response.mintFee) / 10 ** 18,
                   ]);
                   axios.get(response.uri).then((axiosResponse) => {
                     console.log(axiosResponse);
-                    setImages((existingImages) => [
+                    setImages((existingImages: string[]) => [
                       ...existingImages,
                       axiosResponse.data.image,
                     ]);
@@ -132,7 +156,19 @@ const Profile: React.FC = () => {
               <div
                 className={`${poppins.className} flex justify-between items-center`}
               >
-                <p className="text-2xl font-light">@{profileData?.username}</p>
+                <div>
+                  <p className="text-2xl font-light">@{profileData?.username || address?.slice(0, 8)}</p>
+                  {balance && (
+                    <p className="text-sm text-gray-400 mt-1">
+                      Balance: {parseFloat(balance.formatted).toFixed(4)} {balance.symbol}
+                    </p>
+                  )}
+                  {subscriptionId !== null && (
+                    <p className="text-sm text-green-400 mt-1">
+                      ✓ Subscription Active (ID: {subscriptionId.toString()})
+                    </p>
+                  )}
+                </div>
                 <div className="flex flex-row gap-2">
                   <Image
                     src="/pen-edit.svg"
@@ -167,35 +203,34 @@ const Profile: React.FC = () => {
               </div>
             </div>
             <div className="mt-8 w-3/4">
-              <h2 className="text-2xl mb-4">My Collections</h2>
-              <p className="text-primary mt-3 mb-2">
-                Unredeemed NFTs ({mintFee.length})
-              </p>
-              <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 gap-6">
-                {mintFee.map((fee, i) => (
-                  <Card
-                    key={i}
-                    source={images[i]}
-                    title={name}
-                    price={`${fee} ETH`}
-                  />
-                ))}
-              </div>
-            </div>
-            <div className="mt-14 w-3/4">
-              <p className="text-primary mt-3 mb-2">
-                Redeemed Nfts ({mintFee.length})
-              </p>
-              <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 gap-6">
-                {mintFee.map((fee, i) => (
-                  <Card
-                    key={i}
-                    source={images[i]}
-                    title={name}
-                    price={`${fee} ETH`}
-                  />
-                ))}
-              </div>
+              <h2 className="text-2xl mb-4">My NFTs</h2>
+              {loading ? (
+                <p className="text-gray-400">Loading your NFTs...</p>
+              ) : userNFTs.length > 0 ? (
+                <>
+                  <p className="text-primary mt-3 mb-2">
+                    Owned NFTs ({userNFTs.length})
+                  </p>
+                  <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 gap-6">
+                    {userNFTs.map((nft, i) => (
+                      <div key={i} className="bg-gray-800 rounded-lg p-4">
+                        <p className="text-sm text-gray-400">{nft.collectionName}</p>
+                        <p className="text-lg font-semibold">Token #{nft.tokenId}</p>
+                        <a 
+                          href={nft.tokenURI} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-400 text-sm underline"
+                        >
+                          View Metadata
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <p className="text-gray-400">You don&apos;t own any NFTs yet.</p>
+              )}
             </div>
             </>
           }

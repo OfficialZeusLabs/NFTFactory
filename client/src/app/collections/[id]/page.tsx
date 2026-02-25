@@ -43,32 +43,33 @@ const Details = () => {
 
   useEffect(() => {
     console.log("jjj");
-    readFactoryContract("getMarketPlaces").then((res) => {
+    readFactoryContract("getMarketPlaces").then((res: unknown) => {
       console.log(res);
-      res.forEach((address: any) => {
+      const addresses = Array.isArray(res) ? res : [];
+      addresses.forEach((address: any) => {
         console.log(address);
         readSimpleCollectibleContract(address, "getData").then(
-          (data: string | any[] | null) => {
+          (data: unknown) => {
             console.log(data, address);
-            data &&
+            const dataArray = Array.isArray(data) ? data : [];
+            dataArray[params] &&
               setCollection({
-                mintFee: parseFloat(data[params].mintFee) / 10 ** 18,
+                mintFee: parseFloat(dataArray[params].mintFee) / 10 ** 18,
               });
             readSimpleCollectibleContract(address, "name").then((name) => {
               console.log(name, data);
               setAddress(address);
               name && setName(String(name));
-              data &&
-                axios.get(data[params].uri).then((axiosResponse) => {
+              dataArray[params] &&
+                axios.get(dataArray[params].uri).then((axiosResponse) => {
                   console.log(axiosResponse);
                   setImage(axiosResponse.data.image);
                   readSimpleCollectibleContract(address, "getOwners", [
-                    parseFloat(data[params].index),
-                  ]).then((owners) => {
+                    parseFloat(dataArray[params].index),
+                  ]).then((owners: unknown) => {
                     console.log(owners, "fff");
-                    owners && typeof owners !== "string"
-                      ? setOwners(owners)
-                      : setOwners([]);
+                    const ownersArray = Array.isArray(owners) ? owners : [];
+                    setOwners(ownersArray);
                   });
                 });
             });
@@ -170,7 +171,8 @@ const Details = () => {
       "getTokenData",
       [address]
     );
-    return tokens![0];
+    const tokensArray = Array.isArray(tokens) ? tokens : [];
+    return tokensArray[0];
   }
 
   const Redeem = async () => {

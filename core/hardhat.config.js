@@ -1,62 +1,127 @@
-// require("@nomicfoundation/hardhat-toolbox");
 require("@nomicfoundation/hardhat-chai-matchers");
 require("@openzeppelin/hardhat-upgrades");
 require("@nomiclabs/hardhat-ethers");
 require("hardhat-deploy");
-require("@nomiclabs/hardhat-ethers");
 require("hardhat-deploy-ethers");
-require("@typechain/ethers-v5");
+require("hardhat-gas-reporter");
+require("solidity-coverage");
+require("@nomiclabs/hardhat-etherscan");
+
 const { config } = require("dotenv");
 config();
 
+// Environment variables
+const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || "";
+const BASESCAN_API_KEY = process.env.BASESCAN_API_KEY || "";
+const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY || "";
+
+// RPC URLs
+const BASE_SEPOLIA_RPC = ALCHEMY_API_KEY
+  ? `https://base-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`
+  : "https://sepolia.base.org";
+
+const ETHEREUM_SEPOLIA_RPC = ALCHEMY_API_KEY
+  ? `https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`
+  : "https://rpc.sepolia.org";
 
 /** @type import('hardhat/config').HardhatUserConfig */
-const SEPOLIA_ACCOUNT = process.env.SEPOLIA_ACCOUNT;
-const SEPOLIA_URL = process.env.SEPOLIA_URL;
-const MAINNET_RPC_URL = process.env.SEPOLIA_URL 
 module.exports = {
-	defaultNetwork: "hardhat",
-	solidity: {
-		compilers:[
-			{
-				version: "0.8.7",
-			},
-			{
-				version: "0.6.6",
-			},
-			{
-				version:"0.4.19"
-			}
-		]
-	},
-	
-	namedAccounts: {
-		deployer: {
-			default: 0,
-			31337:0,
-			11155111:0
+  solidity: {
+    version: "0.8.20",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 1,
+      },
+      viaIR: true,
+    },
+  },
 
-		},
-		player: {
-			default: 1,
-		},
-	},
-	networks: {
-		hardhat: {
-			chainId: 31337,
-			blockConfirmations: 1,
-			forking:{
-				url:MAINNET_RPC_URL
-			}
-		},
-		sepolia: {
-			accounts: [SEPOLIA_ACCOUNT],
-			blockConfirmations: 3,
-			url: SEPOLIA_URL,
-			chainId: 11155111,
-		},
-		
-	},
+  defaultNetwork: "hardhat",
+
+  networks: {
+    hardhat: {
+      chainId: 31337,
+      blockConfirmations: 1,
+      allowUnlimitedContractSize: true,
+    },
+    
+    localhost: {
+      chainId: 31337,
+      url: "http://127.0.0.1:8545",
+      blockConfirmations: 1,
+    },
+
+    sepolia: {
+      url: ETHEREUM_SEPOLIA_RPC,
+      accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
+      chainId: 11155111,
+      blockConfirmations: 3,
+    },
+
+    baseSepolia: {
+      url: BASE_SEPOLIA_RPC,
+      accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
+      chainId: 84532,
+      blockConfirmations: 3,
+      gasPrice: 5000000000, // 5 gwei
+      gas: 5000000,
+    },
+  },
+
+  namedAccounts: {
+    deployer: {
+      default: 0,
+    },
+    platformFeeRecipient: {
+      default: 0, // Same as deployer by default
+    },
+  },
+
+  etherscan: {
+    apiKey: {
+      mainnet: process.env.ETHERSCAN_API_KEY || "",
+      sepolia: process.env.ETHERSCAN_API_KEY || "",
+      baseSepolia: BASESCAN_API_KEY,
+    },
+    customChains: [
+      {
+        network: "baseSepolia",
+        chainId: 84532,
+        urls: {
+          apiURL: "https://api-sepolia.basescan.org/api",
+          browserURL: "https://sepolia.basescan.org",
+        },
+      },
+    ],
+  },
+
+  gasReporter: {
+    enabled: process.env.REPORT_GAS !== undefined,
+    currency: "USD",
+    coinmarketcap: COINMARKETCAP_API_KEY,
+    token: "ETH",
+    outputFile: "gas-report.txt",
+    noColors: true,
+  },
+
+  contractSizer: {
+    alphaSort: true,
+    disambiguatePaths: false,
+    runOnCompile: true,
+    strict: true,
+  },
+
+  mocha: {
+    timeout: 200000, // 200 seconds max for running tests
+  },
+
+  paths: {
+    sources: "./contracts",
+    tests: "./test",
+    cache: "./cache",
+    artifacts: "./artifacts",
+    deploy: "./deploy",
+  },
 };
-
-// "@nomicfoundation/hardhat-network-helpers@^1.0.0" "@nomicfoundation/hardhat-chai-matchers@^1.0.0" "@nomiclabs/hardhat-ethers@^2.0.0" "@nomiclabs/hardhat-etherscan@^3.0.0" "@types/chai@^4.2.0" "@types/mocha@^9.1.0" "@typechain/ethers-v5@^10.1.0" "@typechain/hardhat@^6.1.2" "chai@^4.2.0" "hardhat-gas-reporter@^1.0.8" "solidity-coverage@^0.8.1" "ts-node@>=8.0.0" "typechain@^8.1.0"
