@@ -1,6 +1,6 @@
-# NFT-Factory-MVP
+# NFT Factory - Enhanced Platform
 
-## Welcome to the NFT Factory MVP repository by Zeus Labs!
+## Welcome to the NFT Factory platform by Zeus Labs - Democratizing Access to Financial Assets!
 
 <p align="center" width="100%">
   <img src="https://github.com/BukiOffor/Nft-assets/assets/58889001/7605392b-51ae-4e2d-825d-4fae2acbcec0" alt="site"/>
@@ -27,7 +27,7 @@
 #
 > ## Overview
 <p align="justify">
-NFT Factory is a groundbreaking project by Zeus Labs aimed at democratizing access to financial assets by tokenizing real-world assets seamlessly on the Gnosis blockchain. This repository contains the Minimum Viable Product (MVP) of the NFT Factory, providing the foundation for creating and managing NFTs representing real-world assets.
+NFT Factory is a groundbreaking project by Zeus Labs aimed at democratizing access to financial assets by tokenizing real-world assets seamlessly on the Gnosis blockchain. This repository contains the enhanced platform of the NFT Factory, providing advanced features for creating, managing, and trading NFTs representing real-world assets. The platform now includes an admin panel, launchpad functionality, and improved smart contracts with upgrade capabilities.
 </p>
 
 
@@ -38,21 +38,31 @@ NFT Factory is a groundbreaking project by Zeus Labs aimed at democratizing acce
 `Deployment on Gnosis chain`
 - Deployment on Gnosis chain.
 
+`Enhanced Asset Tokenization`
+- Database for storage purpose
+- Admins create NFTs and collections
+- End users can mint NFTs
+- End users can list NFTs for sale
+- End users can redeem their NFTs
+- Marketplace for end users
 
-- data base for storage purpose
-- Nsme create the nfts
-- end users can mint
-- end user can list
-- end users can redeem their nft
-- market place for end users
+`Admin Panel & Launchpad Platform`
+- Complete admin backend with authentication
+- Admin dashboard for managing submissions
+- Launchpad application system
+- User management interface
+- Blockchain event monitoring
 
+`Advanced Smart Contracts`
+- Factory contract for deploying new NFT collections
+- Subscription NFT system
+- Upgradable contract architecture (V2)
+- Marketplace contract for trading
 
-`Test Coverage`
+`Test Coverage & Documentation`
 - Unit testing ensures that all the codes meet the quality standards and the functions return the expected output.
 - Test coverage shows us the extent of how much of our codes are covered by tests. We ideally aim for 100% coverage.
-
-`Natspec commenting`
-- This documentation provides information about the codebase and their implementation for both technical and non technical people. 
+- NatSpec commenting provides documentation for both technical and non-technical people. 
 
 
 </p>
@@ -61,8 +71,13 @@ NFT Factory is a groundbreaking project by Zeus Labs aimed at democratizing acce
 > ## Technologies
 | <b><u>Stack</u></b> | <b><u>Usage</u></b> |
 | :------------------ | :------------------ |
-| **`Solidity`**      | Smart contract      |
-| **`Next JS`**      | Frontend            |
+| **`Solidity`**      | Smart contracts     |
+| **`Next JS`**       | Client frontend     |
+| **`React/Vite`**    | Admin frontend      |
+| **`TypeScript`**    | Admin backend       |
+| **`Node.js`**       | Server backend      |
+| **`Hardhat`**       | Smart contract development and deployment |
+| **`OpenZeppelin`**  | Security standards and upgradeability |
 
 #
 > ## Repo Setup
@@ -80,7 +95,7 @@ Change directory to the cloned repo and set the original PrismVox.io repository 
     $ git remote add upstream https://github.com/BukiOffor/Nft-assets.git
 
 #
-
+#
 > ## Requirements
 #
 - Hardhat
@@ -88,6 +103,11 @@ Change directory to the cloned repo and set the original PrismVox.io repository 
 - Metamask key
 - https://gnosisscan.io/ API Url
 - Node JS
+- TypeScript
+- React/Vite (for admin panel)
+- MongoDB or PostgreSQL (for backend storage)
+- IPFS (for decentralized storage)
+- WalletConnect (for wallet integration)
 #
 > ## Setup the Project
 **`*Note:`**
@@ -97,6 +117,20 @@ This project was setup on a windows 10 system using the gitbash terminal. Some o
 </p>
 
 The steps involved are outlined below:-
+
+### Project Structure
+The project consists of multiple components:
+- **client/** - Main frontend application built with Next.js
+- **core/** - Smart contracts and blockchain interactions
+- **server/** - Main backend server
+- **admin-frontend/** - Admin panel frontend built with React/Vite
+- **admin-backend/** - Admin panel backend built with TypeScript
+
+### Installation Steps
+1. Clone the repository
+2. Navigate to each component directory and install dependencies
+3. Configure environment variables
+4. Start each service separately
 #
 > ### Install Hardhat
 The first step involves cloning and installing hardhat.
@@ -137,7 +171,9 @@ $ npm install
 
 $ npm run dev
 ```
-> ### Steps to host the live site on Vercel
+#> ### Steps to host the live site on Vercel
+
+#### Client Frontend Deployment
 - Create an account on [vercel](https://vercel.com/) and authorize your [GitHub](https://github.com/BukiOffor/Nft-assets/) account.
 
 - Once you're redirected to the Dashboard, click on the drop down menu and select `Add GitHub Org or Account`.
@@ -150,14 +186,24 @@ $ npm run dev
 
 - Enter the relevant details and click `Deploy`.
 
+#### Admin Panel Deployment
+The admin panel consists of two parts:
+- **admin-frontend**: Deploy to Vercel as a separate project
+- **admin-backend**: Deploy to Vercel or other hosting platforms as an API service
+
+#### Server Backend
+- Deploy the server backend to Vercel or other Node.js hosting platforms
+- Ensure proper environment variables are set
+- Connect to database and blockchain services
+
 
 #
-> ## Testing the Smartcontract
+> ## Testing the Smartcontracts
 
 - Coverage is used to view the percentage of the code required by tests and unittests were implemented to ensure that the code functions as expected
 #
 **`Coverage Test`**
-- To test the smartcontract, first open a terminal and run the following command:
+- To test the smartcontracts, first open a terminal and run the following command:
 
 - First install Solidity Coverage
 ```
@@ -177,20 +223,43 @@ $ npx hardhat coverage --network localhost
 $ npx hardhat coverage --network localhost --show-stack-traces
 ```
 
+### Running Tests for New Contracts
+The enhanced platform includes additional smart contracts with their own tests:
+
+- **FactoryV2.sol**: Upgraded factory contract with new features
+- **Marketplace.sol**: Trading functionality for NFTs
+- **SubscriptionNFT.sol**: Subscription-based NFT system
+- **SimpleCollectibleV2.sol**: Enhanced collectible contract
+
+To run tests for all contracts:
+```
+cd core
+npx hardhat test
+```
+
+To run tests for specific contracts:
+```
+npx hardhat test test/Factory.test.js
+npx hardhat test test/SimpleCollectible.test.js
+```
+
 #
-> ## Factory Contract Address/ Available 2 transaction hash 
+> ## Smart Contract Addresses
 
-- https://gnosis-chiado.blockscout.com/address/0x950384443e2455E93010BeeC53Fd24e3aaD04C67
+### Factory Contract
+- Address: https://gnosis-chiado.blockscout.com/address/0x950384443e2455E93010BeeC53Fd24e3aaD04C67
 
-Tx:
+### Transaction Hashes
+- Tx 1: 0x4f60fbb2a2d0c0162c7357ea0fd67492577168690e170d24aeb1fe60fd3afd0c
+- Tx 2: 0x289fe2781066b37e1e211065281f0671dd72e115da9237e7f10b6829b58071d3
 
--
-0x4f60fbb2a2d0c0162c7357ea0fd67492577168690e170d24aeb1fe60fd3afd0c
+### Updated Contract Deployments
+- FactoryV2 with upgrade capability
+- Marketplace contract for trading
+- SubscriptionNFT contract
+- SimpleCollectibleV2 with enhanced features
 
-
-- 0x289fe2781066b37e1e211065281f0671dd72e115da9237e7f10b6829b58071d3
-
-the transaction hashes
+For latest deployed addresses, check the `core/deployments/` folder
 
 
 # 
@@ -213,6 +282,37 @@ https://github.com/BukiOffor/Nft-assets/assets/58889001/42d9ea71-95ca-4995-be80-
 - [Frontend Deployment](https://nft-assets-c8r6.vercel.app/)
 - [Figma design](https://www.figma.com/proto/dV2FBUaa7BomJu7JCWjL1Z/Webpage-Redesign?page-id=67%3A823&type=design&node-id=348-3699&viewport=7528%2C-2452%2C0.51&t=6PGceqXUTERPd9EJ-1&scaling=scale-down&starting-point-node-id=348%3A3699&mode=design)
 
+## New Features & Improvements
+
+### Admin Panel
+- Complete admin dashboard with user management
+- Project submission approval workflow
+- Analytics and monitoring tools
+- Built with React, TypeScript, and Vite
+
+### Launchpad Platform
+- Application system for new projects
+- Onboarding workflow for creators
+- Approval and review processes
+
+### Enhanced Smart Contracts
+- Upgradeable contract architecture
+- Subscription NFT functionality
+- Marketplace contract for trading
+- Improved security and gas optimization
+
+### User Experience
+- Enhanced navigation and UI
+- Dashboard for user analytics
+- Collection management tools
+- Subscription system integration
+
+### Backend Services
+- Node.js server with enhanced APIs
+- Blockchain event listeners
+- Email notification services
+- Admin management APIs
+
 
 > ## Contributors
 
@@ -221,6 +321,15 @@ This Project was created by these awesome dedicated members
 <p align="center" width="100%">
   <img src="https://github.com/muhammod1/Nft-factroy/assets/58889001/5702a26d-909a-4c44-a284-2957fcd0879f" alt="teamVox"/>
 </p>
+
+### Recent Contributors to Enhancements
+
+Special recognition to contributors who have added:
+- Admin panel with React/TypeScript backend
+- Launchpad platform for new projects
+- Advanced smart contract functionality
+- Enhanced user dashboard and management
+- Subscription NFT system
 
 #
 > ## Contributing to the project
