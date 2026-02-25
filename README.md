@@ -27,7 +27,7 @@
 #
 > ## Overview
 <p align="justify">
-NFT Factory is a groundbreaking project by Zeus Labs aimed at democratizing access to financial assets by tokenizing real-world assets seamlessly on the Gnosis blockchain. This repository contains the enhanced platform of the NFT Factory, providing advanced features for creating, managing, and trading NFTs representing real-world assets. The platform now includes an admin panel, launchpad functionality, and improved smart contracts with upgrade capabilities.
+NFT Factory is a groundbreaking project by Zeus Labs aimed at democratizing access to financial assets by tokenizing real-world assets seamlessly on the Base Sepolia testnet. This repository contains the enhanced platform of the NFT Factory, providing advanced features for creating, managing, and trading NFTs representing real-world assets. The platform now includes an admin panel, launchpad functionality, and improved smart contracts with upgrade capabilities. Mainnet deployment coming soon.
 </p>
 
 
@@ -35,8 +35,9 @@ NFT Factory is a groundbreaking project by Zeus Labs aimed at democratizing acce
 #
 > ## Core Features Implemented
 
-`Deployment on Gnosis chain`
-- Deployment on Gnosis chain.
+`Deployment on Base Sepolia`
+- Current deployment on Base Sepolia testnet
+- Mainnet deployment coming soon
 
 `Enhanced Asset Tokenization`
 - Database for storage purpose
@@ -101,13 +102,14 @@ Change directory to the cloned repo and set the original PrismVox.io repository 
 - Hardhat
 - Alchemy key
 - Metamask key
-- https://gnosisscan.io/ API Url
+- Base Sepolia API Url (https://sepolia.basescan.org/)
 - Node JS
 - TypeScript
 - React/Vite (for admin panel)
 - MongoDB or PostgreSQL (for backend storage)
 - IPFS (for decentralized storage)
 - WalletConnect (for wallet integration)
+- USDC for subscription payments
 #
 > ## Setup the Project
 **`*Note:`**
@@ -246,8 +248,11 @@ npx hardhat test test/SimpleCollectible.test.js
 #
 > ## Smart Contract Addresses
 
-### Factory Contract
-- Address: https://gnosis-chiado.blockscout.com/address/0x950384443e2455E93010BeeC53Fd24e3aaD04C67
+### Current Deployment (Base Sepolia Testnet)
+- Base Sepolia Explorer: https://sepolia.basescan.org/
+
+### Previous Gnosis Deployment (Legacy)
+- Factory Contract: https://gnosis-chiado.blockscout.com/address/0x950384443e2455E93010BeeC53Fd24e3aaD04C67
 
 ### Transaction Hashes
 - Tx 1: 0x4f60fbb2a2d0c0162c7357ea0fd67492577168690e170d24aeb1fe60fd3afd0c
@@ -258,6 +263,10 @@ npx hardhat test test/SimpleCollectible.test.js
 - Marketplace contract for trading
 - SubscriptionNFT contract
 - SimpleCollectibleV2 with enhanced features
+- Deployed on Base Sepolia testnet
+
+### Future Deployment Plans
+- Mainnet deployment coming soon
 
 For latest deployed addresses, check the `core/deployments/` folder
 
