@@ -21,7 +21,7 @@ import {
   useAccount,
 } from "wagmi";
 import { SimpleCollectible } from "../../../../constants";
-import { readFactoryContract, readSimpleCollectibleContract } from "@/utils";
+import { readFactoryContract, readSimpleCollectibleContract, hasActiveSubscription } from "@/utils";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { parseEther } from "viem";
@@ -134,15 +134,30 @@ const Details = () => {
     return balance;
   }
 
-  const Mint = () => {
+  const Mint = async () => {
     if (!isRedeemed) {
+      // Check if user has an active subscription
+      if (!address) {
+        toast.error("Please connect your wallet first", {
+          theme: "colored",
+        });
+        return;
+      }
+      
+      const hasSubscription = await hasActiveSubscription(address);
+      if (!hasSubscription) {
+        toast.error("You need an active subscription to mint NFTs", {
+          theme: "colored",
+        });
+        router.push("/subscription");
+        return;
+      }
+      
       toast.success("Transaction in progress, confirm in wallet", {
         autoClose: false,
       });
       write?.();
     }
-    // router.push("/collections/mint");
-    // 0x74327bBA4Afbbdb553652989E6a2d7D6B9bf31A0 --old contract address
   };
 
   async function getTokenId(tokenId: number) {
@@ -205,6 +220,52 @@ const Details = () => {
     console.log("data is ", data);
   };
 
+  // State for live collection data
+  const [liveData, setLiveData] = useState({
+    floorPrice: collection.mintFee,
+    totalVolume: collection.mintFee * owners.length,
+    uniqueOwners: owners.length,
+    totalSupply: 0,
+    description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Laudantium est quia illo nisi, cumque laborum vero quae maxime ratione nulla veniam, perferendis recusandae. Temporibus, minus sunt nobis asperiores qui iure."
+  });
+
+  // Fetch live collection data
+  useEffect(() => {
+    const fetchLiveData = async () => {
+      try {
+        // Fetch live data from the Next.js API route
+        const response = await fetch(`/api/marketplace/collections/stats?contractAddress=${cAddress}`);
+        const data = await response.json();
+        
+        // Use the actual response data if available, otherwise fallback
+        const liveStats = data?.data || {
+          floorPrice: collection.mintFee,
+          totalVolume: collection.mintFee * owners.length,
+          uniqueOwners: owners.length,
+          totalSales: 0,
+          averagePrice: collection.mintFee,
+          highestPrice: collection.mintFee * 2,
+          lowestPrice: collection.mintFee * 0.5,
+          lastSalePrice: collection.mintFee * 1.1
+        };
+        
+        setLiveData({
+          floorPrice: liveStats.floorPrice,
+          totalVolume: liveStats.totalVolume,
+          uniqueOwners: liveStats.uniqueOwners,
+          totalSupply: liveStats.totalSales,
+          description: "Explore this premium collection of NFTs. Each piece represents unique digital art created by talented artists."
+        });
+      } catch (error) {
+        console.error("Error fetching live data:", error);
+      }
+    };
+    
+    if (cAddress) {
+      fetchLiveData();
+    }
+  }, [cAddress, collection.mintFee, owners.length]);
+
   return (
     <div className="mt-24">
       <TopNavigation />
@@ -239,36 +300,53 @@ const Details = () => {
               About Collection
             </h4>
             <p className="mt-3 mb-6">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-              Laudantium est quia illo nisi, cumque laborum vero quae maxime
-              ratione nulla veniam, perferendis recusandae. Temporibus, minus
-              sunt nobis asperiores qui iure.
+              {liveData.description}
             </p>
             <ul className="gap-3 flex flex-col list-disc">
-              <li>Benefit of Feature</li>
-              <li>Benefit of Feature</li>
-              <li>Benefit of Feature</li>
+              <li>Unique digital artwork</li>
+              <li>Verified creators</li>
+              <li>Secure ownership</li>
             </ul>
           </div>
         </div>
         <div className="text-2xl w-[97%] tablet_l:w-[94%] laptop_l:w-[89%] max-w-[1280px] mx-auto my-14">
           <p className={`${orbitron.className} text-2xl `}>
-            Product/Package type
+            Collection Metrics
           </p>
           <p className="bg-[#FFC72C] h-[1.5px] my-7"></p>
-          <div className="flex flex-wrap gap-5 justify-between">
-            <p className="flex flex-col text-[15px]">
-              Unique Owners
-              <span className={`${orbitron.className} text-xl`}>
-                {owners.length} Owners
-              </span>
-            </p>
-            <div>
-              <p className="text-[15px]">Mint price</p>
-              <p className={`${orbitron.className} text-xl`}>
-                {collection.mintFee} eth
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <p className="text-sm text-gray-400">Floor Price</p>
+              <p className={`${orbitron.className} text-xl text-yellow-400`}>
+                {liveData.floorPrice.toFixed(4)} ETH
               </p>
             </div>
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <p className="text-sm text-gray-400">Total Volume</p>
+              <p className={`${orbitron.className} text-xl text-green-400`}>
+                {liveData.totalVolume.toFixed(4)} ETH
+              </p>
+            </div>
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <p className="text-sm text-gray-400">Unique Owners</p>
+              <p className={`${orbitron.className} text-xl text-blue-400`}>
+                {liveData.uniqueOwners}
+              </p>
+            </div>
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <p className="text-sm text-gray-400">Total Supply</p>
+              <p className={`${orbitron.className} text-xl text-purple-400`}>
+                {liveData.totalSupply}
+              </p>
+            </div>
+          </div>
+          <div className="mt-8 flex flex-wrap gap-5 justify-between">
+            <p className="flex flex-col text-[15px]">
+              Mint price
+              <span className={`${orbitron.className} text-xl`}>
+                {collection.mintFee} eth
+              </span>
+            </p>
             {isRedeemed ? (
               <button className={styles.home_btn} onClick={Redeem}>
                 Redeem

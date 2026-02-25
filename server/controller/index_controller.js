@@ -5,6 +5,7 @@ import ContractController from "./contract_controller.js";
 import ProjectController from "./project_controller.js";
 import DashboardController from "./dashboard_controller.js";
 import AdminController from "./admin_controller.js";
+import MarketplaceController from "./marketplace_controller.js";
 
 class IndexController {
     static initialize(app) {
@@ -15,6 +16,7 @@ class IndexController {
         ProjectController.initialize(app);
         DashboardController.initialize(app);
         AdminController.initialize(app);
+        MarketplaceController.initialize(app);
     }
 }
 

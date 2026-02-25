@@ -22,7 +22,11 @@ const Routes = {
     DASHBOARD_ANALYTICS: `/${API_VERSION}/dashboard/:walletAddress/analytics`,
     DASHBOARD_TRUST_SCORE: `/${API_VERSION}/dashboard/:walletAddress/trust-score`,
     DASHBOARD_SELF_MINT_ELIGIBILITY: `/${API_VERSION}/dashboard/:walletAddress/self-mint-eligibility`,
-    DASHBOARD_RESUBMIT: `/${API_VERSION}/dashboard/submissions/:submissionId/resubmit`
-}
+    DASHBOARD_RESUBMIT: `/${API_VERSION}/dashboard/submissions/:submissionId/resubmit`,
+    // Marketplace Analytics Routes
+    MARKETPLACE_COLLECTION_STATS: `/${API_VERSION}/marketplace/collections/:contractAddress/stats`,
+    MARKETPLACE_COLLECTIONS_STATS: `/${API_VERSION}/marketplace/collections/stats`,
+    MARKETPLACE_TRENDING: `/${API_VERSION}/marketplace/trending`,
+};
 
 export default Routes;

@@ -60,6 +60,21 @@ const MarketPlace: React.FC = () => {
         });
       });
     });
+    
+    // Also fetch live marketplace data
+    const fetchLiveMarketData = async () => {
+      try {
+        // Fetch live data from the Next.js API route
+        const response = await fetch('/api/marketplace/trending');
+        const data = await response.json();
+        
+        console.log("Fetched live marketplace data:", data);
+      } catch (error) {
+        console.error("Error fetching live marketplace data:", error);
+      }
+    };
+    
+    fetchLiveMarketData();
   }, []);
 
   // Check subscription status
